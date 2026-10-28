@@ -11,9 +11,7 @@ communities, real-time chat, and end-to-end encrypted messaging.
 
 **Current state:** architecture and incremental service scaffolding. The Chat
 service and Event broker have Elixir manifests, pin Elixir 1.20.4/OTP 29.1.2,
-compile, and run against PostgreSQL 18.6. There are no product endpoints,
-OpenAPI or event contracts, migrations, or TypeScript manifests yet. Do not
-assume a feature is runnable.
+compile, and run against PostgreSQL 18.6. The web client (apps/web) and shared TypeScript presets (packages/config-typescript) are scaffolded under Bun 1.4.4. There are no product endpoints, OpenAPI or event contracts, migrations, or backend TypeScript service manifests yet. Do not assume a product feature is runnable.
 
 **License:** AGPL-3.0.
 
@@ -149,7 +147,12 @@ change. Do not create README stubs for leaf utility folders.
 3. **Check open decisions.** If the change depends on an item in §9 of the
    architecture document, do not guess. Propose an ADR and ask.
 4. **Contract first.** API or event changes update `contracts/` before code.
-   Regenerate clients; never hand-edit generated code.
+   Regenerate clients; never hand-edit generated code. Any change to an
+   endpoint (path, method, request/response shape, status code, auth, or
+   error code) must also update the OpenAPI/Swagger contract under
+   `contracts/openapi/` and keep its rendered documentation (the local
+   Swagger UI viewer) in sync; an endpoint change is not complete until the
+   contract and its rendered documentation are updated.
 5. **Implement inside the owner.** Keep domain rules in the service layer, not in
    route handlers, UI, or shared packages.
 6. **Update docs in the same change** when behavior, boundaries, commands,
@@ -199,7 +202,7 @@ Detect commands from manifests; do not invent them.
 
 | Area | Expected command | Status |
 |---|---|---|
-| JS/TS | `bun install`, then package scripts (`typecheck`, `lint`, `test`) | No manifests yet |
+| JS/TS (web) | `bun install --frozen-lockfile && bun run typecheck && bun run test && bun run build:web` | Available for `apps/web` |
 | Elixir (Chat) | `cd services/chat-service && mix deps.get && mix format --check-formatted && mix compile --warnings-as-errors && mix test` | Available; `mix test` requires local PostgreSQL |
 | Elixir (broker) | `cd services/event-broker && mix deps.get && mix format --check-formatted && mix compile --warnings-as-errors && mix test` | Available; `mix test` requires local PostgreSQL |
 | Local PostgreSQL | `docker compose up -d postgres`; wait for `healthy` | Available |
